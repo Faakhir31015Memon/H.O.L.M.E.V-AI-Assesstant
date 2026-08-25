@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H.O.L.M.E.V. // HYPER-AUTOMATED OPERATIONAL LOGIC & MACHINE EXECUTION VECTOR</title>
+  
+  <!-- Google Fonts for Futuristic HUD UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <!-- Google Material Icons for vector UI indicators -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <style>
+    /* CSS VARIABLE SYSTEM FOR HIGH-DYNAMIC THEMING */
+    :root {
+      --primary-accent: #00f3ff;
+      --primary-accent-rgb: 0, 243, 255;
+      --primary-accent-glow: rgba(0, 243, 255, 0.4);
+      --secondary-accent: #0055ff;
+      --secondary-accent-rgb: 0, 85, 255;
+      --secondary-accent-glow: rgba(0, 85, 255, 0.3);
+      --alert-accent: #ffb700;
+      --alert-accent-rgb: 255, 183, 0;
+      --bg-dark-1: #020813;
+      --bg-dark-2: #050e1e;
+      --glass-bg: rgba(2, 8, 19, 0.75);
+      --glass-border: rgba(0, 243, 255, 0.15);
+      --glow-intensity: 0 0 20px rgba(0, 243, 255, 0.25);
+      --text-main: #c5d3e8;
+      
+      /* Animation Speeds */
+      --speed-outer: 25s;
+      --speed-mid: 15s;
+      --speed-teeth: 45s;
+    }
+
+    /* RED OVERKILL MODE PALETTE STYLES */
+    body.overkill-mode {
+      --primary-accent: #ff3c00;
+      --primary-accent-rgb: 255, 60, 0;
+      --primary-accent-glow: rgba(255, 60, 0, 0.6);
+      --secondary-accent: #ffb700;
+      --secondary-accent-rgb: 255, 183, 0;
+      --secondary-accent-glow: rgba(255, 183, 0, 0.4);
+      --bg-dark-1: #1a0500;
+      --bg-dark-2: #090100;
+      --glass-bg: rgba(26, 5, 0, 0.85);
+      --glass-border: rgba(255, 60, 0, 0.3);
+      --glow-intensity: 0 0 30px rgba(255, 60, 0, 0.5);
+      --text-main: #ffdcd3;
+
+      --speed-outer: 6s;
+      --speed-mid: 4s;
+      --speed-teeth: 12s;
+    }
+
+    /* BASE STRUCTURAL RESET */
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, var(--bg-dark-2) 0%, var(--bg-dark-1) 100%);
+      color: var(--text-main);
+      font-family: 'Rajdhani', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background 1s ease;
+    }
+
+    /* FUTURISTIC SCANLINE & GRID OVERLAYS */
+    .hud-grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(var(--primary-accent-rgb), 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--primary-accent-rgb), 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      background-position: center;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hud-scanlines {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.22) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.6;
+    }
+
+    /* SCROLLBAR CUSTOMIZATION */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(var(--primary-accent-rgb), 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-accent);
+    }
+
+    /* CONTAINERS & COLUMNS */
+    .hud-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 16px 20px;
+      z-index: 10;
+      position: relative;
+    }
+
+    /* TOP HEADER BAR */
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(var(--primary-accent-rgb), 0.25);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    .hud-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 10%;
+      width: 150px;
+      height: 1px;
+      background: var(--primary-accent);
+      box-shadow: 0 0 10px var(--primary-accent);
+    }
+
+    .header-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-container {
+      position: relative;
+    }
+    .logo-pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary-accent);
+      box-shadow: 0 0 10px var(--primary-accent);
+      animation: pulseGlow 1.8s infinite alternate;
+    }
+    .logo-text h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 3px;
+      color: var(--primary-accent);
+      text-shadow: 0 0 8px var(--primary-accent-glow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-text p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      margin: 2px 0 0 0;
+      letter-spacing: 1.5px;
+      color: rgba(var(--primary-accent-rgb), 0.7);
+    }
+
+    .header-center-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .clock-display {
+      color: #ffffff;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+      font-weight: 500;
+    }
+    .date-display {
+      color: rgba(var(--primary-accent-rgb), 0.7);
+      font-size: 12px;
+    }
+    .latency-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--alert-accent);
+      background: rgba(var(--alert-accent-rgb), 0.08);
+      border: 1px solid rgba(var(--alert-accent-rgb), 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .latency-sparkline {
+      width: 40px;
+      height: 14px;
+      display: block;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 10px;
+    }
+    .badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: rgba(var(--secondary-accent-rgb), 0.12);
+      border: 1px solid rgba(var(--secondary-accent-rgb), 0.35);
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: var(--primary-accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: inset 0 0 5px rgba(var(--secondary-accent-rgb), 0.2);
+    }
+    .badge.active {
+      border-color: rgba(var(--primary-accent-rgb), 0.6);
+      color: var(--primary-accent);
+      box-shadow: 0 0 8px rgba(var(--primary-accent-rgb), 0.3), inset 0 0 5px rgba(var(--primary-accent-rgb), 0.1);
+    }
+    .badge.warn {
+      border-color: rgba(var(--alert-accent-rgb), 0.6);
+      color: var(--alert-accent);
+      box-shadow: 0 0 8px rgba(var(--alert-accent-rgb), 0.3);
+    }
+
+    /* MAIN VIEW grid (3 columns) */
+    .hud-main {
+      display: grid;
+      grid-template-columns: 330px 1fr 370px;
+      gap: 16px;
+      flex: 1;
+      min-height: 0; /* allows flex scrolling in panels */
+    }
+
+    /* FUTURISTIC CORNER PANEL DESIGN */
+    .hud-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glow-intensity), inset 0 0 15px rgba(var(--primary-accent-rgb), 0.03);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hud-panel::before, .hud-panel::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 2px solid transparent;
+      pointer-events: none;
+    }
+    .hud-panel::before {
+      top: -1px;
+      left: -1px;
+      border-top-color: var(--primary-accent);
+      border-left-color: var(--primary-accent);
+    }
+    .hud-panel::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom-color: var(--primary-accent);
+      border-right-color: var(--primary-accent);
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      border-left: 3px solid var(--primary-accent);
+      padding-left: 8px;
+      margin: 0;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title span.sub {
+      font-size: 10px;
+      color: rgba(var(--primary-accent-rgb), 0.6);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* LEFT COLUMN (DIAGNOSTICS & METRICS) */
+    .diagnostics-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .metric-card {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .metric-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .metric-info span.value {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--primary-accent);
+    }
+    .metric-progress {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.15);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    .metric-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary-accent), var(--primary-accent));
+      width: 0%;
+      box-shadow: 0 0 8px var(--primary-accent);
+      border-radius: 3px;
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+    .metric-progress-fill.alert {
+      background: linear-gradient(90deg, #ff7b00, var(--alert-accent));
+      box-shadow: 0 0 8px var(--alert-accent);
+    }
+
+    /* TELEMETRY TABLE INFO */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      border-top: 1px solid rgba(var(--primary-accent-rgb), 0.15);
+      padding-top: 12px;
+    }
+    .telemetry-item {
+      background: rgba(0, 85, 255, 0.04);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.08);
+      border-radius: 4px;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .telemetry-item label {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(var(--primary-accent-rgb), 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .telemetry-item span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--primary-accent);
+    }
+
+    /* REALTIME VECTOR MATRIX FEED */
+    .vector-feed-container {
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.15);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(var(--primary-accent-rgb), 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .vector-feed-row {
+      display: flex;
+      justify-content: space-between;
+      white-space: nowrap;
+    }
+    .vector-feed-row span.active {
+      color: var(--primary-accent);
+      text-shadow: 0 0 5px var(--primary-accent-glow);
+    }
+
+    /* CENTRAL CORE (ARC REACTOR & VISUALIZER) */
+    .panel-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reactor-system-wrapper {
+      position: relative;
+      width: 330px;
+      height: 330px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+    }
+
+    /* SVG rotating rings overlay */
+    .reactor-svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .ring-outer {
+      transform-origin: center;
+      animation: rotateCw var(--speed-outer) linear infinite;
+      transition: animation-duration 0.8s ease;
+    }
+    .ring-mid {
+      transform-origin: center;
+      animation: rotateCcw var(--speed-mid) linear infinite;
+      transition: animation-duration 0.8s ease;
+    }
+    .ring-teeth {
+      transform-origin: center;
+      animation: rotateCw var(--speed-teeth) linear infinite;
+      opacity: 0.65;
+    }
+    .ring-ticks {
+      transform-origin: center;
+      opacity: 0.3;
+    }
+
+    /* HTML5 Canvas Waveform inside/behind rings */
+    #waveform-canvas {
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      z-index: 6;
+      pointer-events: none;
+      border-radius: 50%;
+    }
+
+    /* PHYSICAL ARC REACTOR CORE GLOW */
+    .reactor-core {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, rgba(var(--primary-accent-rgb), 0.7) 45%, transparent 70%);
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 25px rgba(var(--primary-accent-rgb), 0.8), inset 0 0 15px rgba(var(--primary-accent-rgb), 0.5);
+      animation: corePulse 2s ease-in-out infinite alternate;
+      transition: all 0.6s ease;
+    }
+    
+    /* Core state speed adjustment */
+    .reactor-core.listening {
+      background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.85) 30%, rgba(var(--primary-accent-rgb), 0.9) 60%, transparent 80%);
+      box-shadow: 0 0 45px rgba(var(--primary-accent-rgb), 1);
+      animation: corePulseListening 0.5s infinite alternate;
+    }
+    .reactor-core.processing {
+      background: radial-gradient(circle, #ffffff 0%, rgba(var(--alert-accent-rgb), 0.85) 45%, transparent 70%);
+      box-shadow: 0 0 45px rgba(var(--alert-accent-rgb), 0.9);
+      animation: corePulseProcessing 0.25s infinite alternate;
+    }
+
+    .reactor-core-inner {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: var(--bg-dark-1);
+      border: 2px solid rgba(var(--primary-accent-rgb), 0.6);
+      box-shadow: inset 0 0 10px rgba(var(--primary-accent-rgb), 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: border-color 0.6s ease;
+    }
+    .reactor-core-center {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary-accent);
+      box-shadow: 0 0 15px var(--primary-accent);
+      transition: all 0.6s ease;
+    }
+
+    /* Core Status overlay texts below reactor */
+    .core-status-panel {
+      margin-top: 25px;
+      text-align: center;
+      z-index: 10;
+    }
+    .core-status-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary-accent);
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px var(--primary-accent-glow);
+      text-transform: uppercase;
+      transition: color 0.6s ease;
+    }
+    .core-status-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      color: rgba(var(--primary-accent-rgb), 0.6);
+      letter-spacing: 3px;
+      margin-top: 5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: color 0.6s ease;
+    }
+
+    /* RIGHT COLUMN (TERMINAL & DATA GRAPH) */
+    .cyber-terminal {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.25);
+      box-shadow: inset 0 0 10px rgba(var(--primary-accent-rgb), 0.05);
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: rgba(var(--primary-accent-rgb), 0.95);
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .log-row {
+      display: flex;
+      gap: 8px;
+    }
+    .log-timestamp {
+      color: rgba(var(--primary-accent-rgb), 0.45);
+      flex-shrink: 0;
+    }
+    .log-text-content {
+      word-break: break-word;
+    }
+    .log-text-content.sys-alert {
+      color: var(--alert-accent);
+    }
+    .log-text-content.sys-success {
+      color: #00ff66;
+    }
+    .log-text-content.user-cmd {
+      color: #ffffff;
+    }
+    .log-text-content.holmev-res {
+      color: var(--primary-accent);
+      font-weight: bold;
+    }
+
+    /* TELEMETRY CHART AREA */
+    .telemetry-chart-container {
+      height: 140px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    #node-graph-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* BOTTOM INTERACTION ZONE */
+    .hud-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    /* Action pills quick triggers */
+    .quick-pills-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .quick-pill {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: rgba(0, 85, 255, 0.05);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.3);
+      color: var(--primary-accent);
+      padding: 5px 12px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 5px rgba(var(--primary-accent-rgb), 0.05);
+      text-transform: uppercase;
+    }
+    .quick-pill:hover {
+      background: rgba(var(--primary-accent-rgb), 0.15);
+      border-color: var(--primary-accent);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(var(--primary-accent-rgb), 0.3);
+      transform: translateY(-1.5px);
+    }
+    .quick-pill:active {
+      transform: translateY(0);
+    }
+
+    /* SLEEK HUD INPUT & MIC BUTTON */
+    .interaction-bar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(2, 8, 19, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(var(--primary-accent-rgb), 0.25);
+      box-shadow: 0 0 15px rgba(var(--primary-accent-rgb), 0.08);
+      border-radius: 30px;
+      padding: 6px 14px;
+      position: relative;
+    }
+    .interaction-bar::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(var(--primary-accent-rgb), 0.3), transparent, rgba(var(--secondary-accent-rgb), 0.3));
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Pulse microphone trigger */
+    .mic-control-box {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .mic-button {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #020813 0%, #001133 100%);
+      border: 2px solid var(--primary-accent);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--primary-accent);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(var(--primary-accent-rgb), 0.3);
+    }
+    .mic-button:hover {
+      box-shadow: 0 0 15px var(--primary-accent);
+      color: #ffffff;
+    }
+    .mic-button.listening {
+      background: var(--primary-accent);
+      color: var(--bg-dark-1);
+      box-shadow: 0 0 25px var(--primary-accent);
+      border-color: #ffffff;
+      transform: scale(1.05);
+    }
+    .mic-button.processing {
+      background: var(--alert-accent);
+      color: var(--bg-dark-1);
+      box-shadow: 0 0 25px var(--alert-accent);
+      border-color: #ffffff;
+    }
+    .mic-pulse-wave {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--primary-accent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .mic-button.listening + .mic-pulse-wave {
+      animation: pulseMicWave 1.2s infinite ease-out;
+    }
+    @keyframes pulseMicWave {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .cmd-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      height: 36px;
+    }
+    .cmd-input::placeholder {
+      color: rgba(var(--primary-accent-rgb), 0.4);
+    }
+
+    .execute-button {
+      background: linear-gradient(135deg, var(--secondary-accent), var(--primary-accent));
+      border: none;
+      border-radius: 20px;
+      color: #ffffff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 8px 22px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 10px rgba(var(--primary-accent-rgb), 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .execute-button:hover {
+      box-shadow: 0 0 15px rgba(var(--primary-accent-rgb), 0.5);
+      transform: translateY(-1px);
+    }
+    .execute-button:active {
+      transform: translateY(0);
+    }
+
+    /* KEYFRAME ROTATION ANIMATIONS */
+    @keyframes rotateCw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes rotateCcw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    @keyframes pulseGlow {
+      0% { opacity: 0.45; box-shadow: 0 0 4px var(--primary-accent); }
+      100% { opacity: 1; box-shadow: 0 0 14px var(--primary-accent); }
+    }
+    @keyframes corePulse {
+      0% { transform: scale(0.96); opacity: 0.85; }
+      100% { transform: scale(1.04); opacity: 1; }
+    }
+    @keyframes corePulseListening {
+      0% { transform: scale(0.94); opacity: 0.9; }
+      100% { transform: scale(1.08); opacity: 1; }
+    }
+    @keyframes corePulseProcessing {
+      0% { transform: scale(0.98); }
+      100% { transform: scale(1.02); }
+    }
+
+    /* RESPONSIVE DESIGN - COLLAPSING GRID ON SMALLER VIEWS */
+    @media (max-width: 1100px) {
+      .hud-main {
+        grid-template-columns: 280px 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .panel-right {
+        grid-column: span 2;
+        max-height: 250px;
+      }
+      .panel-center {
+        min-height: 350px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hud-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      .panel-left, .panel-center, .panel-right {
+        grid-column: span 1;
+      }
+      .hud-container {
+        height: auto;
+        overflow-y: auto;
+      }
+      body {
+        overflow-y: auto;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Grid & Scanline layers -->
+  <div class="hud-grid-overlay"></div>
+  <div class="hud-scanlines"></div>
+
+  <div class="hud-container">
+    
+    <!-- 1. TOP HUD STATUS HEADER -->
+    <header class="hud-header">
+      
+      <!-- LOGO / NAME -->
+      <div class="header-logo-section">
+        <div class="logo-container">
+          <div class="logo-pulse-dot"></div>
+        </div>
+        <div class="logo-text">
+          <h1>H.O.L.M.E.V.</h1>
+          <p>HYPER-AUTOMATED OPERATIONAL LOGIC & MACHINE EXECUTION VECTOR</p>
+        </div>
+      </div>
+
+      <!-- LIVE DIGITAL METRICS -->
+      <div class="header-center-info">
+        <div class="clock-display" id="hud-clock">00:00:00</div>
+        <div class="date-display" id="hud-date">MON 01 JAN 2026</div>
+        <div class="latency-display">
+          <span class="material-symbols-outlined" style="font-size: 13px;">bolt</span>
+          <span>LATENCY: <span id="latency-text">8ms</span></span>
+          <canvas id="latency-chart" class="latency-sparkline"></canvas>
+        </div>
+      </div>
+
+      <!-- STATUS BADGES -->
+      <div class="header-badges">
+        <div class="badge active" id="badge-core">
+          <span class="material-symbols-outlined" style="font-size: 11px;">memory</span>
+          <span>CORE: ACTIVE</span>
+        </div>
+        <div class="badge active" id="badge-firewall">
+          <span class="material-symbols-outlined" style="font-size: 11px;">shield</span>
+          <span>FIREWALL: SECURE</span>
+        </div>
+        <div class="badge" id="badge-cpu">
+          <span class="material-symbols-outlined" style="font-size: 11px;">developer_board</span>
+          <span id="badge-cpu-text">CPU: 12%</span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- 2. MAIN HUD VIEWPORTS -->
+    <main class="hud-main">
+      
+      <!-- LEFT COLUMN: SYSTEM DIAGNOSTICS -->
+      <section class="hud-panel panel-left">
+        <div class="panel-header-line"></div>
+        <h2 class="panel-title">
+          <span>SYSTEM DIAGNOSTICS</span>
+          <span class="sub">SYS_DIAG_v2.09</span>
+        </h2>
+        
+        <!-- TELEMETRY PROGRESS BARS -->
+        <div class="diagnostics-stats">
+          <div class="metric-card">
+            <div class="metric-info">
+              <span>CPU CORE UTILIATION</span>
+              <span class="value" id="val-cpu">12.4%</span>
+            </div>
+            <div class="metric-progress">
+              <div class="metric-progress-fill" id="fill-cpu" style="width: 12.4%;"></div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <span>NEURAL ENGINE LOAD</span>
+              <span class="value" id="val-neural">48.2%</span>
+            </div>
+            <div class="metric-progress">
+              <div class="metric-progress-fill" id="fill-neural" style="width: 48.2%;"></div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <span>MEMORY GRID ALLOCATION</span>
+              <span class="value" id="val-memory">34.1%</span>
+            </div>
+            <div class="metric-progress">
+              <div class="metric-progress-fill" id="fill-memory" style="width: 34.1%;"></div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <span>QUANTUM SYNC COHERENCE</span>
+              <span class="value" id="val-sync">99.88%</span>
+            </div>
+            <div class="metric-progress">
+              <div class="metric-progress-fill" id="fill-sync" style="width: 99.88%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELEMETRY READOUT VALUES -->
+        <div class="telemetry-grid">
+          <div class="telemetry-item">
+            <label>NEURAL VECTOR STREAM</label>
+            <span id="read-stream">8.42 PB/s</span>
+          </div>
+          <div class="telemetry-item">
+            <label>CORE TEMPERATURE</label>
+            <span id="read-temp">34.2 °C</span>
+          </div>
+          <div class="telemetry-item">
+            <label>LOGIC SECTOR ADDR</label>
+            <span id="read-addr">0x9F4E8B</span>
+          </div>
+          <div class="telemetry-item">
+            <label>THREAD COHERENCE</label>
+            <span id="read-coherence">OPTIMAL</span>
+          </div>
+        </div>
+
+        <!-- VECTOR STREAMING MATRIX GRID -->
+        <div class="vector-feed-container" id="matrix-feed">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+      </section>
+
+      <!-- CENTER COLUMN: INTERACTIVE ARC REACTOR -->
+      <section class="panel-center">
+        
+        <!-- REACTOR RING AND CANVAS CONTAINER -->
+        <div class="reactor-system-wrapper" id="reactor-system">
+          
+          <!-- Concentric SVG rotating rings -->
+          <svg class="reactor-svg" viewBox="0 0 200 200">
+            <defs>
+              <filter id="glow-effect" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Ring Ticks (Compass style marks) -->
+            <g class="ring-ticks" stroke="var(--primary-accent)" stroke-width="0.5">
+              <line x1="100" y1="5" x2="100" y2="10" />
+              <line x1="100" y1="190" x2="100" y2="195" />
+              <line x1="5" y1="100" x2="10" y2="100" />
+              <line x1="190" y1="100" x2="195" y2="100" />
+              <line x1="33" y1="33" x2="38" y2="38" />
+              <line x1="167" y1="33" x2="162" y2="38" />
+              <line x1="33" y1="167" x2="38" y2="162" />
+              <line x1="167" y1="167" x2="162" y2="162" />
+            </g>
+            
+            <!-- Ring 1 (Outer - Dasharray) -->
+            <circle class="ring-outer" cx="100" cy="100" r="92" stroke="var(--primary-accent)" stroke-width="1" stroke-dasharray="25 15 5 15 45 20" fill="none" opacity="0.65" filter="url(#glow-effect)" />
+            
+            <!-- Ring 2 (Middle - Thick Cyber Blocks) -->
+            <circle class="ring-mid" cx="100" cy="100" r="78" stroke="var(--secondary-accent)" stroke-width="2.5" stroke-dasharray="60 30 10 30" fill="none" opacity="0.5" filter="url(#glow-effect)" />
+            
+            <!-- Ring 3 (Inner Teeth - Arc Reactor segments) -->
+            <circle class="ring-teeth" cx="100" cy="100" r="63" stroke="var(--primary-accent)" stroke-width="5" stroke-dasharray="16 12" fill="none" opacity="0.75" />
+            
+            <!-- Circular frame boundaries -->
+            <circle cx="100" cy="100" r="54" stroke="rgba(var(--primary-accent-rgb), 0.15)" stroke-width="1" fill="none" />
+            <circle cx="100" cy="100" r="46" stroke="rgba(var(--primary-accent-rgb), 0.15)" stroke-width="1" fill="none" />
+          </svg>
+
+          <!-- Circular Waveform Canvas -->
+          <canvas id="waveform-canvas" width="660" height="660"></canvas>
+
+          <!-- Central Core Reactor -->
+          <div class="reactor-core" id="reactor-core">
+            <div class="reactor-core-inner">
+              <div class="reactor-core-center" id="reactor-core-center"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- System Core Status texts -->
+        <div class="core-status-panel">
+          <div class="core-status-title" id="status-title">H.O.L.M.E.V. ONLINE</div>
+          <div class="core-status-subtitle" id="status-subtitle">SYSTEM STATE: STANDING BY</div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: TERMINAL & LOGIC FLOW -->
+      <section class="hud-panel panel-right">
+        <div class="panel-header-line"></div>
+        <h2 class="panel-title">
+          <span>EXECUTION LOGS & VECTORS</span>
+          <span class="sub">LOG_STREAM_00</span>
+        </h2>
+
+        <!-- futuristic log terminal -->
+        <div class="cyber-terminal" id="terminal-screen">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Telemetry Network Graph -->
+        <div class="telemetry-chart-container">
+          <canvas id="node-graph-canvas"></canvas>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- 3. FOOTER CONTROL BAR -->
+    <footer class="hud-footer">
+      
+      <!-- Preset pill shortcuts -->
+      <div class="quick-pills-row">
+        <button class="quick-pill" onclick="triggerPill('diagnostics')">[RUN DIAGNOSTICS]</button>
+        <button class="quick-pill" onclick="triggerPill('security')">[ACTIVATE SECURITY]</button>
+        <button class="quick-pill" onclick="triggerPill('purge')">[PURGE CACHE]</button>
+        <button class="quick-pill" onclick="triggerPill('overkill')">[OVERKILL MODE]</button>
+      </div>
+
+      <!-- Interaction bar (text input + mic trigger) -->
+      <div class="interaction-bar">
+        
+        <!-- Voice Activation Container -->
+        <div class="mic-control-box">
+          <button class="mic-button" id="mic-trigger" onclick="toggleVoiceState()" title="Activate H.O.L.M.E.V. Voice Interface">
+            <span class="material-symbols-outlined" id="mic-icon">mic</span>
+          </button>
+          <div class="mic-pulse-wave"></div>
+        </div>
+
+        <!-- Interactive text command box -->
+        <input type="text" class="cmd-input" id="cmd-input-field" placeholder="Type instruction for H.O.L.M.E.V. (e.g., 'status summary', 'firewall state')..." autocomplete="off">
+
+        <!-- Execution button -->
+        <button class="execute-button" onclick="executeTextCommand()">
+          <span>EXECUTE</span>
+          <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
+        </button>
+
+      </div>
+
+    </footer>
+
+  </div>
+
+  <!-- SCRIPT LOGIC FOR HIGH FIDELITY HUD ACTIONS -->
+  <script>
+    // ----------------------------------------------------
+    // SYSTEM ARCHITECTURE & STATE CONFIG
+    // ----------------------------------------------------
+    const STATE_IDLE = 'idle';
+    const STATE_LISTENING = 'listening';
+    const STATE_PROCESSING = 'processing';
+
+    let currentSystemState = STATE_IDLE;
+    let overkillActive = false;
+    let systemLatency = 8;
+    const latencyHistory = [8, 9, 7, 8, 10, 11, 8, 7, 9, 8, 12, 10, 8, 8, 9];
+
+    // Simulated target diagnostic metrics
+    const metrics = {
+      cpu: { val: 12.4, target: 12.4, fillEl: null, valEl: null },
+      neural: { val: 48.2, target: 48.2, fillEl: null, valEl: null },
+      memory: { val: 34.1, target: 34.1, fillEl: null, valEl: null },
+      sync: { val: 99.88, target: 99.88, fillEl: null, valEl: null }
+    };
+
+    // DOM References Cache
+    const dom = {
+      clock: null,
+      date: null,
+      latencyText: null,
+      latencyChart: null,
+      badgeCpuText: null,
+      badgeCpu: null,
+      terminal: null,
+      cmdInput: null,
+      statusTitle: null,
+      statusSubtitle: null,
+      reactorCore: null,
+      reactorCoreCenter: null,
+      micTrigger: null,
+      micIcon: null,
+      matrixFeed: null,
+      nodeGraphCanvas: null,
+      waveformCanvas: null
+    };
+
+    // AI Typewriter Dialog Templates
+    const HOLMEV_RESPONSES = {
+      greeting: [
+        "Core loaded. H.O.L.M.E.V. online. State your command.",
+        "Hyper-logic engines engaged. Standing by for instructions.",
+        "Secure link established. Quantum sync is optimal."
+      ],
+      diagnostics: [
+        "Initializing full telemetry diagnostic scan...",
+        "Scanning CPU logic registers... [OK]",
+        "Evaluating neural synchronization coefficients... [OK]",
+        "Diagnostics complete. Core coherence is nominal."
+      ],
+      security: [
+        "Reinforcing cybernetic perimeter shielding...",
+        "Applying quantum-level firewalls... done.",
+        "Intrusion vectors neutralized. Security levels maximized."
+      ],
+      purge: [
+        "Purging temporary logic buffers and memory cache...",
+        "Consolidating 4.82 GB temporary operational indices... [OK]",
+        "Cache purged. Memory allocation optimized."
+      ],
+      overkill: [
+        "CAUTION: Removing quantum safety regulators...",
+        "Overclocking logical sub-grids to 250% capacity...",
+        "ALL LIMITS DISENGAGED. HYPER-EXECUTION SPEED ACTIVE."
+      ],
+      unknown: [
+        "Logic exception. Vector command not indexed. Re-enter parameters.",
+        "Decoding failure. Clarify instructions or run diagnostics check.",
+        "Vector unrecognized. Standby for secondary validation."
+      ]
+    };
+
+    // Initialize application when DOM is fully prepared
+    window.addEventListener('DOMContentLoaded', () => {
+      initDOMReferences();
+      startSystemClock();
+      prepopulateTerminalLogs();
+      setupMatrixFeed();
+      initCanvases();
+      registerInputHandlers();
+
+      // Begin main execution loop
+      requestAnimationFrame(mainAnimationLoop);
+
+      // Periodic system status fluctuations
+      setInterval(runPeriodicFluctuations, 2000);
+      setInterval(appendRandomBackgroundLogs, 7000);
+    });
+
+    function initDOMReferences() {
+      dom.clock = document.getElementById('hud-clock');
+      dom.date = document.getElementById('hud-date');
+      dom.latencyText = document.getElementById('latency-text');
+      dom.latencyChart = document.getElementById('latency-chart');
+      dom.badgeCpuText = document.getElementById('badge-cpu-text');
+      dom.badgeCpu = document.getElementById('badge-cpu');
+      dom.terminal = document.getElementById('terminal-screen');
+      dom.cmdInput = document.getElementById('cmd-input-field');
+      dom.statusTitle = document.getElementById('status-title');
+      dom.statusSubtitle = document.getElementById('status-subtitle');
+      dom.reactorCore = document.getElementById('reactor-core');
+      dom.reactorCoreCenter = document.getElementById('reactor-core-center');
+      dom.micTrigger = document.getElementById('mic-trigger');
+      dom.micIcon = document.getElementById('mic-icon');
+      dom.matrixFeed = document.getElementById('matrix-feed');
+      dom.nodeGraphCanvas = document.getElementById('node-graph-canvas');
+      dom.waveformCanvas = document.getElementById('waveform-canvas');
+
+      metrics.cpu.fillEl = document.getElementById('fill-cpu');
+      metrics.cpu.valEl = document.getElementById('val-cpu');
+      metrics.neural.fillEl = document.getElementById('fill-neural');
+      metrics.neural.valEl = document.getElementById('val-neural');
+      metrics.memory.fillEl = document.getElementById('fill-memory');
+      metrics.memory.valEl = document.getElementById('val-memory');
+      metrics.sync.fillEl = document.getElementById('fill-sync');
+      metrics.sync.valEl = document.getElementById('val-sync');
+    }
+
+    // ----------------------------------------------------
+    // LIVE HUD TIMERS, DATE & LATENCY
+    // ----------------------------------------------------
+    function startSystemClock() {
+      const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+      function updateClock() {
+        const now = new Date();
+        
+        // Time
+        const hrs = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+        dom.clock.textContent = `${hrs}:${mins}:${secs}`;
+
+        // Date
+        const day = weekdays[now.getDay()];
+        const dateNum = String(now.getDate()).padStart(2, '0');
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        dom.date.textContent = `${day} ${dateNum} ${month} ${year}`;
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    function drawLatencySparkline() {
+      const canvas = dom.latencyChart;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      
+      canvas.width = 50 * dpr;
+      canvas.height = 16 * dpr;
+      ctx.scale(dpr, dpr);
+
+      ctx.clearRect(0, 0, 50, 16);
+      ctx.strokeStyle = overkillActive ? '#ffb700' : '#00f3ff';
+      ctx.lineWidth = 1;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+
+      const step = 50 / (latencyHistory.length - 1);
+      latencyHistory.forEach((val, i) => {
+        // Map 4ms - 20ms to height 14 - 2px
+        const y = 14 - ((val - 4) / 16) * 12;
+        const x = i * step;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    // ----------------------------------------------------
+    // TERMINAL COMMAND LOG LOGIC
+    // ----------------------------------------------------
+    function appendTerminalLog(message, type = '') {
+      const now = new Date();
+      const timestamp = `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}]`;
+
+      const row = document.createElement('div');
+      row.className = 'log-row';
+
+      const timeEl = document.createElement('span');
+      timeEl.className = 'log-timestamp';
+      timeEl.textContent = timestamp;
+
+      const textEl = document.createElement('span');
+      textEl.className = `log-text-content ${type}`;
+      textEl.textContent = message;
+
+      row.appendChild(timeEl);
+      row.appendChild(textEl);
+      dom.terminal.appendChild(row);
+
+      // Auto scroll terminal
+      dom.terminal.scrollTop = dom.terminal.scrollHeight;
+    }
+
+    function prepopulateTerminalLogs() {
+      appendTerminalLog("INITIALIZING H.O.L.M.E.V. HYPER-SYSTEM CORE...", "sys-alert");
+      appendTerminalLog("LOAD MODULE: NEURAL_LOGIC_VECTOR_ENGINE... SUCCESS.", "sys-success");
+      appendTerminalLog("LOAD MODULE: QUANTUM_SYNC_STABILIZER... COHERENCE COEF 0.9998.", "sys-success");
+      appendTerminalLog("FIREWALL ENFORCED: QUANTUM TRITIUM BARRIER LOADED.", "sys-success");
+      appendTerminalLog("SYSTEM CALIBRATED AND ARMED. STANDING BY...", "sys-success");
+    }
+
+    function appendRandomBackgroundLogs() {
+      if (currentSystemState !== STATE_IDLE) return;
+
+      const randomLogs = [
+        "SYSTEM HEALTH MONITOR: All vectors stable.",
+        "CLEANUP THREAD: Temp neural registries cleared.",
+        "SECURE LINK: Latency optimized to standard channels.",
+        "CORE TEMP: Heat exchange balanced at 34.2°C.",
+        "LOGIC SCAN: 0 anomaly signals intercepted.",
+        "ENCRYPTION KEY: Rotated to alternate vector addresses."
+      ];
+
+      const chosen = randomLogs[Math.floor(Math.random() * randomLogs.length)];
+      appendTerminalLog(chosen);
+    }
+
+    // Typewriter effect animation for replies
+    function printTypewriterResponse(messages, index = 0) {
+      if (index >= messages.length) return;
+
+      const msg = messages[index];
+      appendTerminalLog("", "holmev-res");
+      
+      const rows = dom.terminal.querySelectorAll('.log-row');
+      const targetTextEl = rows[rows.length - 1].querySelector('.log-text-content');
+
+      let charIdx = 0;
+      function typeChar() {
+        if (charIdx < msg.length) {
+          targetTextEl.textContent += msg.charAt(charIdx);
+          charIdx++;
+          dom.terminal.scrollTop = dom.terminal.scrollHeight;
+          setTimeout(typeChar, 18);
+        } else {
+          // Process next message after brief pause
+          setTimeout(() => {
+            printTypewriterResponse(messages, index + 1);
+          }, 400);
+        }
+      }
+      typeChar();
+    }
+
+    // ----------------------------------------------------
+    // MATRIX DATA STREAM FLOOD (LEFT PANEL BOTTOM)
+    // ----------------------------------------------------
+    function setupMatrixFeed() {
+      dom.matrixFeed.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const row = document.createElement('div');
+        row.className = 'vector-feed-row';
+        row.innerHTML = generateVectorHexRow();
+        dom.matrixFeed.appendChild(row);
+      }
+      
+      // Fast updates for streaming hex blocks
+      setInterval(() => {
+        const rows = dom.matrixFeed.querySelectorAll('.vector-feed-row');
+        const targetRow = rows[Math.floor(Math.random() * rows.length)];
+        targetRow.innerHTML = generateVectorHexRow();
+      }, 250);
+    }
+
+    function generateVectorHexRow() {
+      const columns = 5;
+      let html = '';
+      for (let c = 0; c < columns; c++) {
+        const val = Math.floor(Math.random() * 65536).toString(16).toUpperCase().padStart(4, '0');
+        const isActive = Math.random() > 0.7;
+        const colorClass = isActive ? 'class="active"' : '';
+        html += `<span ${colorClass}>${val}</span>`;
+      }
+      return html;
+    }
+
+    // ----------------------------------------------------
+    // INPUT HANDLERS & VOICE STATE ACTIONS
+    // ----------------------------------------------------
+    function registerInputHandlers() {
+      dom.cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          executeTextCommand();
+        }
+      });
+    }
+
+    function toggleVoiceState() {
+      if (currentSystemState === STATE_IDLE) {
+        setSystemState(STATE_LISTENING);
+        appendTerminalLog("USER: [Voice Activation Initiated]", "user-cmd");
+        appendTerminalLog("H.O.L.M.E.V.: LISTENING FOR COGNITIVE LOGIC PATTERNS...", "sys-alert");
+
+        // Simulating 3 seconds of listening
+        setTimeout(() => {
+          if (currentSystemState === STATE_LISTENING) {
+            setSystemState(STATE_PROCESSING);
+            appendTerminalLog("SYSTEM: AUDIO INPUT BUFFER SECURED (3.2 seconds)", "sys-success");
+            appendTerminalLog("H.O.L.M.E.V.: EXTRACTING VECTOR PARAMETERS...", "sys-alert");
+
+            // Simulating 2.5 seconds of processing
+            setTimeout(() => {
+              if (currentSystemState === STATE_PROCESSING) {
+                setSystemState(STATE_IDLE);
+                const randomActions = ['diagnostics', 'security', 'purge', 'unknown'];
+                const selected = randomActions[Math.floor(Math.random() * randomActions.length)];
+                processLogicCommand(selected);
+              }
+            }, 2500);
+          }
+        }, 3000);
+      } else {
+        // Abort voice operation
+        setSystemState(STATE_IDLE);
+        appendTerminalLog("SYSTEM: VOICE INTERFACE CANCELLED. BUFFER DISCARDED.", "sys-alert");
+      }
+    }
+
+    function executeTextCommand() {
+      const cmdText = dom.cmdInput.value.trim();
+      if (!cmdText) return;
+
+      appendTerminalLog(`USER: ${cmdText}`, "user-cmd");
+      dom.cmdInput.value = '';
+
+      setSystemState(STATE_PROCESSING);
+
+      // Simulate command execution delay
+      setTimeout(() => {
+        setSystemState(STATE_IDLE);
+        const lowerCmd = cmdText.toLowerCase();
+
+        if (lowerCmd.includes('diag') || lowerCmd.includes('diagnostics') || lowerCmd.includes('status')) {
+          processLogicCommand('diagnostics');
+        } else if (lowerCmd.includes('security') || lowerCmd.includes('shield') || lowerCmd.includes('firewall')) {
+          processLogicCommand('security');
+        } else if (lowerCmd.includes('purge') || lowerCmd.includes('cache') || lowerCmd.includes('clear')) {
+          processLogicCommand('purge');
+        } else if (lowerCmd.includes('overkill') || lowerCmd.includes('overclock')) {
+          processLogicCommand('overkill');
+        } else {
+          processLogicCommand('unknown');
+        }
+      }, 1500);
+    }
+
+    function triggerPill(commandType) {
+      if (currentSystemState !== STATE_IDLE) return;
+      
+      const names = {
+        diagnostics: "EXECUTE: Full System Diagnostics Protocol",
+        security: "EXECUTE: Reinforce Containment Security",
+        purge: "EXECUTE: Temporary Buffer Purge Protocol",
+        overkill: "EXECUTE: Engage Cyber Overclock Limits"
+      };
+
+      appendTerminalLog(`USER: ${names[commandType]}`, "user-cmd");
+      setSystemState(STATE_PROCESSING);
+
+      setTimeout(() => {
+        setSystemState(STATE_IDLE);
+        processLogicCommand(commandType);
+      }, 1500);
+    }
+
+    function processLogicCommand(type) {
+      if (type === 'diagnostics') {
+        printTypewriterResponse(HOLMEV_RESPONSES.diagnostics);
+        triggerDiagFluctuations();
+      } else if (type === 'security') {
+        printTypewriterResponse(HOLMEV_RESPONSES.security);
+        document.getElementById('badge-firewall').className = "badge active";
+      } else if (type === 'purge') {
+        printTypewriterResponse(HOLMEV_RESPONSES.purge);
+      } else if (type === 'overkill') {
+        toggleOverkillMode();
+        printTypewriterResponse(HOLMEV_RESPONSES.overkill);
+      } else {
+        printTypewriterResponse(HOLMEV_RESPONSES.unknown);
+      }
+    }
+
+    function setSystemState(state) {
+      currentSystemState = state;
+      
+      // Update DOM Indicators
+      dom.reactorCore.className = "reactor-core";
+      dom.statusTitle.className = "core-status-title";
+      
+      if (state === STATE_IDLE) {
+        dom.statusTitle.textContent = overkillActive ? "H.O.L.M.E.V. // PEAK POWER" : "H.O.L.M.E.V. ONLINE";
+        dom.statusSubtitle.textContent = overkillActive ? "SYSTEM STATE: FULL OVERCLOCK" : "SYSTEM STATE: STANDING BY";
+        dom.micTrigger.className = "mic-button";
+        dom.micIcon.textContent = "mic";
+        dom.badgeCpu.className = "badge";
+      } else if (state === STATE_LISTENING) {
+        dom.reactorCore.classList.add('listening');
+        dom.statusTitle.textContent = "H.O.L.M.E.V. LISTENING...";
+        dom.statusSubtitle.textContent = "CAPTURING AUDIO HARMONICS";
+        dom.statusTitle.classList.add('glow-cyan');
+        dom.micTrigger.className = "mic-button listening";
+        dom.micIcon.textContent = "graphic_eq";
+      } else if (state === STATE_PROCESSING) {
+        dom.reactorCore.classList.add('processing');
+        dom.statusTitle.textContent = "PROCESSING LOGIC...";
+        dom.statusSubtitle.textContent = "SYNCHRONIZING SYMBOLS";
+        dom.micTrigger.className = "mic-button processing";
+        dom.micIcon.textContent = "memory";
+        dom.badgeCpu.className = "badge warn";
+      }
+    }
+
+    function toggleOverkillMode() {
+      overkillActive = !overkillActive;
+      
+      if (overkillActive) {
+        document.body.classList.add('overkill-mode');
+        appendTerminalLog("SYSTEM WARNING: SECURITY PROTOCOLS BYPASSED. LIMITS DISENGAGED.", "sys-alert");
+        document.getElementById('badge-core').innerHTML = `
+          <span class="material-symbols-outlined" style="font-size: 11px;">bolt</span>
+          <span>CORE: OVERCLOCK</span>
+        `;
+        document.getElementById('badge-core').className = "badge warn";
+        setSystemState(currentSystemState); // refresh text formatting
+      } else {
+        document.body.classList.remove('overkill-mode');
+        appendTerminalLog("SYSTEM RESTORE: RE-ENGAGING STANDARD QUANTUM COEFFICIENTS.", "sys-success");
+        document.getElementById('badge-core').innerHTML = `
+          <span class="material-symbols-outlined" style="font-size: 11px;">memory</span>
+          <span>CORE: ACTIVE</span>
+        `;
+        document.getElementById('badge-core').className = "badge active";
+        setSystemState(currentSystemState);
+      }
+    }
+
+    // ----------------------------------------------------
+    // METRICS FLUCTUATIONS
+    // ----------------------------------------------------
+    function runPeriodicFluctuations() {
+      // Modify target values depending on overall system states
+      let cpuBase = 12.0, cpuRange = 4.0;
+      let neuralBase = 48.0, neuralRange = 6.0;
+      let latencyBase = 8, latencyRange = 4;
+
+      if (currentSystemState === STATE_LISTENING) {
+        cpuBase = 22.0; cpuRange = 6.0;
+        neuralBase = 62.0; neuralRange = 8.0;
+      } else if (currentSystemState === STATE_PROCESSING) {
+        cpuBase = 78.0; cpuRange = 15.0;
+        neuralBase = 85.0; neuralRange = 10.0;
+      }
+
+      if (overkillActive) {
+        cpuBase += 20.0;
+        neuralBase += 10.0;
+        latencyBase = 3;
+        latencyRange = 2;
+      }
+
+      metrics.cpu.target = Math.min(100, Math.max(0, cpuBase + (Math.random() - 0.5) * cpuRange));
+      metrics.neural.target = Math.min(100, Math.max(0, neuralBase + (Math.random() - 0.5) * neuralRange));
+      metrics.memory.target = Math.min(100, Math.max(0, 34.1 + (Math.random() - 0.5) * 1.5));
+      metrics.sync.target = Math.min(100, Math.max(90, 99.88 + (Math.random() - 0.5) * 0.15));
+
+      // Latency Updates
+      systemLatency = Math.max(2, Math.floor(latencyBase + Math.random() * latencyRange));
+      latencyHistory.push(systemLatency);
+      if (latencyHistory.length > 15) latencyHistory.shift();
+      dom.latencyText.textContent = `${systemLatency}ms`;
+      drawLatencySparkline();
+    }
+
+    function triggerDiagFluctuations() {
+      // Temporarily spike variables representing system checks
+      metrics.cpu.target = 94.2;
+      metrics.neural.target = 98.7;
+      metrics.memory.target = 54.8;
+      metrics.sync.target = 100.0;
+      
+      appendTerminalLog("SYSTEM CALIBRATION: Diagnostic values peaked.", "sys-alert");
+    }
+
+    // ----------------------------------------------------
+    // DYNAMIC CANVASES (WAVEFORM & NETWORK GRAPH)
+    // ----------------------------------------------------
+    let visualizerAngle = 0;
+    let nodePoints = [];
+    const GRID_SIZE = 15;
+
+    function initCanvases() {
+      // 1. LATENCY MINI CANVAS CHART
+      drawLatencySparkline();
+
+      // 2. RIGHT PANEL NODE NETWORK INITIALIZATION
+      const canvas = dom.nodeGraphCanvas;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * (window.devicePixelRatio || 1);
+      canvas.height = rect.height * (window.devicePixelRatio || 1);
+
+      // Create static/dynamic node structures
+      nodePoints = [];
+      const cols = 5;
+      const rows = 3;
+      const w = rect.width;
+      const h = rect.height;
+      
+      for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+          nodePoints.push({
+            originX: (w / (cols + 1)) * (c + 1),
+            originY: (h / (rows + 1)) * (r + 1),
+            x: 0,
+            y: 0,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.8 + Math.random() * 1.5,
+            radius: 2 + Math.random() * 2,
+            flicker: 0
+          });
+        }
+      }
+    }
+
+    // Handle Resize smoothly for telemetry node graph canvas
+    window.addEventListener('resize', () => {
+      initCanvases();
+    });
+
+    function drawNodeGraph(time) {
+      const canvas = dom.nodeGraphCanvas;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Ambient background grid
+      ctx.strokeStyle = overkillActive ? 'rgba(255, 60, 0, 0.05)' : 'rgba(0, 243, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += GRID_SIZE) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += GRID_SIZE) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Compute nodes motion
+      const displacementRange = overkillActive ? 12 : 5;
+      nodePoints.forEach(p => {
+        p.x = p.originX + Math.sin(time * p.speed + p.phase) * displacementRange;
+        p.y = p.originY + Math.cos(time * p.speed + p.phase) * displacementRange;
+        p.flicker = Math.random() > 0.85 ? 0.2 : 0.85;
+      });
+
+      // Draw connection lines to nearby nodes
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < nodePoints.length; i++) {
+        for (let j = i + 1; j < nodePoints.length; j++) {
+          const dx = nodePoints[i].x - nodePoints[j].x;
+          const dy = nodePoints[i].y - nodePoints[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < w / 3.5) {
+            const alpha = (1 - dist / (w / 3.5)) * 0.22;
+            ctx.strokeStyle = overkillActive ? `rgba(255, 96, 0, ${alpha})` : `rgba(0, 85, 255, ${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(nodePoints[i].x, nodePoints[i].y);
+            ctx.lineTo(nodePoints[j].x, nodePoints[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      nodePoints.forEach(p => {
+        ctx.fillStyle = overkillActive 
+          ? `rgba(255, 183, 0, ${p.flicker})` 
+          : `rgba(0, 243, 255, ${p.flicker})`;
+        
+        ctx.shadowColor = overkillActive ? '#ff3c00' : '#00f3ff';
+        ctx.shadowBlur = Math.random() > 0.8 ? 8 : 2;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Translucent outer rings occasionally
+        if (p.radius > 3 && Math.random() > 0.5) {
+          ctx.strokeStyle = overkillActive ? 'rgba(255, 60, 0, 0.25)' : 'rgba(0, 243, 255, 0.25)';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * 2.2, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+      ctx.shadowBlur = 0; // reset
+    }
+
+    // Circular reactor audio visualizer canvas
+    function drawReactorWaveform(time) {
+      const canvas = dom.waveformCanvas;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Base Config
+      const points = overkillActive ? 160 : 120;
+      const baseRadius = 145; // Just between ring-teeth and ring-mid
+      
+      let waveNoise = 4;
+      let speedScale = 1.0;
+      let complexity = 5;
+
+      if (currentSystemState === STATE_LISTENING) {
+        waveNoise = 28;
+        speedScale = 4.0;
+        complexity = 8;
+      } else if (currentSystemState === STATE_PROCESSING) {
+        waveNoise = 16;
+        speedScale = 8.0;
+        complexity = 18;
+      }
+
+      if (overkillActive) {
+        waveNoise *= 1.4;
+        speedScale *= 1.5;
+      }
+
+      // Draw secondary translucent background concentric guide lines
+      ctx.strokeStyle = overkillActive ? 'rgba(255, 60, 0, 0.03)' : 'rgba(0, 243, 255, 0.03)';
+      ctx.lineWidth = 1;
+      for (let r = 100; r < 200; r += 25) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Generate Wave points
+      const pathPoints = [];
+      for (let i = 0; i < points; i++) {
+        const theta = (i / points) * Math.PI * 2;
+        
+        // Multi-frequency wave synthesis
+        let offset = Math.sin(theta * complexity + time * 3.5 * speedScale) * waveNoise * 0.5;
+        offset += Math.cos(theta * (complexity / 2) - time * 2.2 * speedScale) * waveNoise * 0.3;
+        offset += Math.sin(theta * (complexity * 2) + time * 6.0 * speedScale) * waveNoise * 0.2;
+
+        if (currentSystemState === STATE_LISTENING) {
+          // Add sharp audio-like spike anomalies
+          offset += (Math.random() - 0.5) * 8;
+        }
+
+        const r = baseRadius + offset;
+        const x = cx + Math.cos(theta) * r;
+        const y = cy + Math.sin(theta) * r;
+        pathPoints.push({ x, y, r, theta });
+      }
+
+      // Draw Wave Path
+      ctx.strokeStyle = overkillActive ? '#ff3c00' : '#00f3ff';
+      ctx.shadowColor = overkillActive ? '#ffb700' : '#0055ff';
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      
+      ctx.beginPath();
+      ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+      for (let i = 1; i < points; i++) {
+        ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draw translucent bars radiating from the center to wave peaks
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 1.0;
+      const barFrequency = overkillActive ? 3 : 2; // draw less lines for performance/clarity
+
+      for (let i = 0; i < points; i += barFrequency) {
+        const p = pathPoints[i];
+        const innerX = cx + Math.cos(p.theta) * (baseRadius - 20);
+        const innerY = cy + Math.sin(p.theta) * (baseRadius - 20);
+
+        // Amplitude color shift
+        const height = Math.abs(p.r - baseRadius);
+        const alpha = Math.min(0.7, 0.08 + (height / waveNoise) * 0.55);
+
+        ctx.strokeStyle = overkillActive 
+          ? `rgba(255, 183, 0, ${alpha})` 
+          : `rgba(0, 243, 255, ${alpha})`;
+        
+        ctx.beginPath();
+        ctx.moveTo(innerX, innerY);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+
+      // LISTENING STATE PARTICLES EFFECT
+      if (currentSystemState === STATE_LISTENING) {
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#00f3ff';
+        for (let i = 0; i < 4; i++) {
+          const randAngle = Math.random() * Math.PI * 2;
+          const randDist = baseRadius + Math.random() * 40;
+          const particleX = cx + Math.cos(randAngle) * randDist;
+          const particleY = cy + Math.sin(randAngle) * randDist;
+          ctx.beginPath();
+          ctx.arc(particleX, particleY, 1 + Math.random() * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // ----------------------------------------------------
+    // MAIN ENGINE RENDERING & TICK LOOP
+    // ----------------------------------------------------
+    let lastTime = 0;
+
+    function mainAnimationLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const elapsedSeconds = timestamp / 1000;
+      const deltaSeconds = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      // 1. Linearly interpolate/smooth metrics fill bars
+      updateMetricsFlow(deltaSeconds);
+
+      // 2. Render Node Graphic Telemetry
+      drawNodeGraph(elapsedSeconds);
+
+      // 3. Render Circular Waveform
+      drawReactorWaveform(elapsedSeconds);
+
+      requestAnimationFrame(mainAnimationLoop);
+    }
+
+    function updateMetricsFlow(dt) {
+      // Smoothly approach target metric values
+      const lerpFactor = overkillActive ? 12 : 5;
+      
+      for (let m in metrics) {
+        const metric = metrics[m];
+        metric.val += (metric.target - metric.val) * lerpFactor * dt;
+        
+        // Render adjustments
+        if (metric.fillEl && metric.valEl) {
+          metric.fillEl.style.width = `${metric.val}%`;
+          
+          if (m === 'sync') {
+            metric.valEl.textContent = `${metric.val.toFixed(2)}%`;
+          } else {
+            metric.valEl.textContent = `${metric.val.toFixed(1)}%`;
+          }
+
+          // Warning thresholds coloring
+          if (m === 'cpu') {
+            dom.badgeCpuText.textContent = `CPU: ${Math.floor(metric.val)}%`;
+            if (metric.val > 70) {
+              metric.fillEl.classList.add('alert');
+            } else {
+              metric.fillEl.classList.remove('alert');
+            }
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
