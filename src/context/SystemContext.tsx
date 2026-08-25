@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { playChirp, playConfirm, playWarning, startReactorHum, stopReactorHum, speak } from '../utils/sound';
 
 export type SystemStateType = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'ERROR';
 
@@ -90,13 +91,26 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     ]);
   };
 
-  // Prepopulate boot logs on startup
+  // Prepopulate boot logs on startup & trigger initial TTS / hum
   useEffect(() => {
     addLog("INITIALIZING H.O.L.M.E.V. HYPER-SYSTEM CORE...", "SYSTEM", "warn");
+    
+    // Start reactor hum ambient sound
+    startReactorHum(false);
+
+    // Initial voice greeting
+    setTimeout(() => {
+      speak("Holographic system operational logic and machine execution vector active. Reactor core nominal.");
+    }, 800);
+
     setTimeout(() => addLog("LOAD MODULE: NEURAL_LOGIC_VECTOR_ENGINE... SUCCESS.", "AI_BACKEND", "success"), 250);
     setTimeout(() => addLog("LOAD MODULE: QUANTUM_SYNC_STABILIZER... COHERENCE COEF 0.9998.", "SYSTEM", "success"), 500);
     setTimeout(() => addLog("FIREWALL ENFORCED: QUANTUM TRITIUM BARRIER LOADED.", "SYSTEM", "success"), 750);
     setTimeout(() => addLog("SYSTEM CALIBRATED AND ARMED. STANDING BY...", "SYSTEM", "success"), 1000);
+
+    return () => {
+      stopReactorHum();
+    };
   }, []);
 
   // Update telemetry metrics with smooth fluctuations
@@ -169,9 +183,15 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (next) {
         document.body.classList.add('overkill-mode');
         addLog("SYSTEM WARNING: SECURITY RATIOS DISENGAGED. OVERCLOCK ACTIVE.", "SYSTEM", "warn");
+        playWarning();
+        speak("Warning. Reactor core overclocked. Limits disengaged. System power yield peaking.");
+        startReactorHum(true);
       } else {
         document.body.classList.remove('overkill-mode');
         addLog("SYSTEM RESTORE: Standard safety thresholds re-engaged.", "SYSTEM", "success");
+        playConfirm();
+        speak("Reactor core stabilized. Default security protocols active.");
+        startReactorHum(false);
       }
       return next;
     });
@@ -183,9 +203,13 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const next = !prev;
       if (next) {
         addLog("CV STACK: Spatial convolutions activated.", "VISION_CV", "success");
+        playConfirm();
+        speak("Initializing computer vision sweep. Camera feed live.");
         simulateHolmevResponse(HOLMEV_RESPONSES.cvStack);
       } else {
         addLog("CV STACK: Shutdown command executed. Camera streams offline.", "VISION_CV", "warn");
+        playChirp();
+        speak("Computer vision feed offline.");
       }
       return next;
     });
@@ -195,18 +219,23 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const executeCommand = (cmdText: string) => {
     if (!cmdText.trim()) return;
     
+    playChirp();
     addLog(cmdText, "USER", "info");
     setSystemState('PROCESSING');
 
     setTimeout(() => {
       setSystemState('IDLE');
+      playConfirm();
       const lower = cmdText.toLowerCase();
 
       if (lower.includes('diag') || lower.includes('status')) {
+        speak("Scanning logic sectors. Coherence coefficient is zero point nine nine nine eight.");
         simulateHolmevResponse(HOLMEV_RESPONSES.diagnostics);
       } else if (lower.includes('security') || lower.includes('firewall') || lower.includes('shield')) {
+        speak("Tritium intrusion barrier online. External threats mitigated.");
         simulateHolmevResponse(HOLMEV_RESPONSES.security);
       } else if (lower.includes('purge') || lower.includes('cache')) {
+        speak("Flushing memory buffer. System index optimized.");
         simulateHolmevResponse(HOLMEV_RESPONSES.purge);
       } else if (lower.includes('overkill') || lower.includes('overclock')) {
         toggleOverkillMode();
@@ -214,6 +243,7 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } else if (lower.includes('cv') || lower.includes('vision') || lower.includes('cam')) {
         toggleCvStack();
       } else {
+        speak("Query not recognized. Command sequence offline.");
         simulateHolmevResponse(HOLMEV_RESPONSES.unknown);
       }
     }, 1200);
@@ -221,16 +251,21 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Trigger from preset pill shortcuts
   const triggerPill = (pillKey: string) => {
+    playChirp();
     setSystemState('PROCESSING');
     addLog(`EXECUTE PILL: ${pillKey.toUpperCase()}`, "USER", "info");
 
     setTimeout(() => {
       setSystemState('IDLE');
+      playConfirm();
       if (pillKey === 'diagnostics') {
+        speak("Initiating diagnostic routines. Logic matrices normal.");
         simulateHolmevResponse(HOLMEV_RESPONSES.diagnostics);
       } else if (pillKey === 'security') {
+        speak("Applied security firewall updates. All systems secure.");
         simulateHolmevResponse(HOLMEV_RESPONSES.security);
       } else if (pillKey === 'purge') {
+        speak("Index databases fully optimized.");
         simulateHolmevResponse(HOLMEV_RESPONSES.purge);
       } else if (pillKey === 'overkill') {
         toggleOverkillMode();
