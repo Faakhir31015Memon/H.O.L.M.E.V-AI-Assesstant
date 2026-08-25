@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSystem } from '../context/SystemContext';
-import { Camera, Crosshair, Target, Eye, ShieldAlert } from 'lucide-react';
+import { Camera, Eye, ShieldAlert } from 'lucide-react';
 
 interface BoundingBox {
   id: string;
@@ -16,7 +16,7 @@ interface BoundingBox {
 }
 
 export const ComputerVisionFeed: React.FC = () => {
-  const { overkillMode, systemState } = useSystem();
+  const { overkillMode } = useSystem();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const [boxes, setBoxes] = useState<BoundingBox[]>([
@@ -254,7 +254,7 @@ export const ComputerVisionFeed: React.FC = () => {
             <Eye className="w-3 h-3 text-emerald-400" />
             <span>AI PATTERN MATCH: SECURE</span>
           </div>
-          <div>TARGET COUNT: 3 ACTIVE</div>
+          <div>TARGET COUNT: {boxes.length} ACTIVE</div>
           <div>GRID RATIO: 12x8 SCALES</div>
         </div>
 

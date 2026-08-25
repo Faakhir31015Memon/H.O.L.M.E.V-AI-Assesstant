@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useCallback, useEffect, useState } from 'react';
+import React, { useRef, useMemo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sparkles } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -299,7 +299,7 @@ const ReactorScene: React.FC = () => {
    SVG HUD OVERLAY - Tick marks, dashed rings, labels
    ================================================ */
 const HudOverlay: React.FC = () => {
-  const { overkillMode, systemState } = useSystem();
+  const { overkillMode } = useSystem();
   const color = overkillMode ? '#ff3c00' : '#00f3ff';
   const dimColor = overkillMode ? 'rgba(255,60,0,0.15)' : 'rgba(0,243,255,0.12)';
   const midColor = overkillMode ? 'rgba(255,60,0,0.25)' : 'rgba(0,243,255,0.2)';
