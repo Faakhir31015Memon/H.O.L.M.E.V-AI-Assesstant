@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSystem } from '../context/SystemContext';
+import { playDataTick } from '../utils/sound';
 
 export const TerminalFeed: React.FC = () => {
   const { logs, metrics, overkillMode } = useSystem();
@@ -8,10 +9,13 @@ export const TerminalFeed: React.FC = () => {
   // Track metrics history for the telemetry line chart
   const [chartHistory, setChartHistory] = useState<{cpu: number, neural: number}[]>([]);
 
-  // Auto-scroll logs to bottom
+  // Auto-scroll logs to bottom and play tech beep sound on new log
   useEffect(() => {
     if (terminalEndRef.current) {
       terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (logs.length > 0) {
+      playDataTick();
     }
   }, [logs]);
 
@@ -19,12 +23,12 @@ export const TerminalFeed: React.FC = () => {
   useEffect(() => {
     setChartHistory((prev) => {
       const next = [...prev, { cpu: metrics.cpu, neural: metrics.neuralLoad }];
-      if (next.length > 20) next.shift();
+      if (next.length > 25) next.shift();
       return next;
     });
   }, [metrics.cpu, metrics.neuralLoad]);
 
-  // Render SVG charts
+  // Render SVG charts inside 100x100 relative viewBox coordinates
   const getSvgPath = (key: 'cpu' | 'neural', width: number, height: number) => {
     if (chartHistory.length < 2) return '';
     const step = width / (chartHistory.length - 1);
@@ -33,8 +37,8 @@ export const TerminalFeed: React.FC = () => {
       .map((pt, i) => {
         const x = i * step;
         const val = pt[key];
-        // Scale 0-100% to height (margin 4px)
-        const y = height - (val / 100) * (height - 8) - 4;
+        // Scale 0-100% to height (margin 6px)
+        const y = height - (val / 100) * (height - 12) - 6;
         return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
       })
       .join(' ');
@@ -99,39 +103,43 @@ export const TerminalFeed: React.FC = () => {
           </div>
         </div>
 
-        {/* Dynamic SVG Graphs */}
-        <div className="flex-1 relative w-full mt-2">
-          <svg className="w-full h-full stroke-current overflow-visible" fill="none" strokeWidth="1.2">
+        {/* Responsive scaling SVG Chart */}
+        <div className="flex-1 relative w-full mt-2 overflow-hidden">
+          <svg 
+            className="w-full h-full stroke-current overflow-visible" 
+            viewBox="0 0 100 100" 
+            preserveAspectRatio="none"
+            fill="none" 
+            strokeWidth="0.8"
+          >
             
-            {/* CPU Waveform (Cyan) */}
+            {/* CPU Waveform (Cyan/Red) */}
             <path 
-              d={getSvgPath('cpu', 330, 90)} 
+              d={getSvgPath('cpu', 100, 100)} 
               className={overkillMode ? 'text-red-500' : 'text-cyber-cyan'} 
-              style={{ transition: 'd 0.3s ease' }}
+              style={{ transition: 'd 0.2s ease' }}
             />
             
             {/* Neural Waveform (Blue) */}
             <path 
-              d={getSvgPath('neural', 330, 90)} 
+              d={getSvgPath('neural', 100, 100)} 
               className="text-cyber-blue" 
-              style={{ transition: 'd 0.3s ease' }}
+              style={{ transition: 'd 0.2s ease' }}
             />
             
-            {/* Last Values glowing point circles */}
+            {/* Final point coordinates circles */}
             {chartHistory.length > 0 && (
               <>
-                {/* CPU dot */}
                 <circle 
-                  cx={330} 
-                  cy={90 - (chartHistory[chartHistory.length - 1].cpu / 100) * 82 - 4} 
-                  r={2} 
+                  cx={100} 
+                  cy={100 - (chartHistory[chartHistory.length - 1].cpu / 100) * 88 - 6} 
+                  r={1} 
                   className={overkillMode ? 'fill-red-500 stroke-red-500' : 'fill-cyber-cyan stroke-cyber-cyan'} 
                 />
-                {/* Neural dot */}
                 <circle 
-                  cx={330} 
-                  cy={90 - (chartHistory[chartHistory.length - 1].neural / 100) * 82 - 4} 
-                  r={2} 
+                  cx={100} 
+                  cy={100 - (chartHistory[chartHistory.length - 1].neural / 100) * 88 - 6} 
+                  r={1} 
                   className="fill-cyber-blue stroke-cyber-blue" 
                 />
               </>
