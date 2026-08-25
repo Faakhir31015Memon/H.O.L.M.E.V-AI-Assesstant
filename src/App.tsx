@@ -1,5 +1,5 @@
 import React from 'react';
-import { SystemProvider, useSystem } from './context/SystemContext';
+import { SystemProvider } from './context/SystemContext';
 import { Header } from './components/Header';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel';
 import { HolmevCore3D } from './components/HolmevCore3D';

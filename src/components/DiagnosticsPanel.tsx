@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useSystem } from '../context/SystemContext';
 
 export const DiagnosticsPanel: React.FC = () => {
-  const { metrics, overkillMode, systemState } = useSystem();
+  const { metrics, overkillMode } = useSystem();
   
   // Local telemetry states
   const [fps, setFps] = useState(60.0);
