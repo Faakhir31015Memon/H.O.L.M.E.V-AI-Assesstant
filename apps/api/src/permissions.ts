@@ -1,36 +1,40 @@
-import type { RiskLevel, StructuredCommand } from "../../../packages/holmev-protocol/index.ts";
+import type { RiskLevel, StructuredCommand } from "../../../core/protocol.ts";
+
+const HIGH_ACTIONS = new Set(["shutdown", "restart", "lock", "delete", "install", "shell"]);
+const EXTREME_ACTIONS = new Set(["delete_recordings", "wipe", "disable_security"]);
 
 export function classifyRisk(cmd: StructuredCommand): RiskLevel {
-  if (cmd.command === "os.control") {
-    const a = cmd.action ?? "";
-    if (["shutdown", "restart", "lock"].includes(a)) return "HIGH";
-    if (["delete_file", "install", "shell"].includes(a)) return "HIGH";
-    if (["open_file", "change_setting"].includes(a)) return "MEDIUM";
-    return "LOW";
+  const action = cmd.action.toLowerCase();
+  if (EXTREME_ACTIONS.has(action) || cmd.command.startsWith("cctv") && action.includes("delete")) {
+    return "EXTREME";
   }
-  if (cmd.command === "cctv.view" || cmd.command === "cctv.compare" || cmd.command === "cctv.grid") {
+  if (cmd.command === "system.power" || HIGH_ACTIONS.has(action)) {
+    return "HIGH";
+  }
+  if (cmd.command === "device.control" && (action === "open_file" || action === "change_setting")) {
     return "MEDIUM";
   }
-  if (cmd.action === "delete_recordings") return "EXTREME";
-  if (cmd.command === "home.scene" && cmd.action === "security_disarm") return "HIGH";
-  if (cmd.command === "device.control" && cmd.target?.type === "door") return "MEDIUM";
+  if (cmd.command === "home.scene" && action === "disarm") {
+    return "HIGH";
+  }
   return "LOW";
 }
 
-export function authorizationForRisk(risk: RiskLevel): StructuredCommand["authorization"] {
-  if (risk === "LOW") return "none";
-  if (risk === "MEDIUM") return "identity";
-  if (risk === "HIGH") return "required";
-  return "mfa";
-}
-
-const ROLE_ALLOW: Record<string, string[]> = {
-  admin: ["*"],
-  family: ["device.control", "home.scene", "cctv.view", "cctv.compare", "cctv.grid", "system.query", "chat", "ui.control"],
-  guest: ["system.query", "chat", "ui.control"],
+const ROLE_ALLOW: Record<string, Set<string>> = {
+  admin: new Set(["*"]),
+  family: new Set([
+    "device.control",
+    "home.scene",
+    "cctv.view",
+    "system.info",
+    "conversation.reply",
+    "ui.mode",
+  ]),
+  guest: new Set(["conversation.reply", "system.info", "ui.mode"]),
 };
 
-export function canExecute(role: string, command: string): boolean {
-  const allow = ROLE_ALLOW[role] ?? ROLE_ALLOW.guest;
-  return allow.includes("*") || allow.includes(command);
+export function isAllowed(role: string, cmd: StructuredCommand): boolean {
+  const allowed = ROLE_ALLOW[role] ?? ROLE_ALLOW.guest;
+  if (allowed.has("*")) return true;
+  return allowed.has(cmd.command);
 }
