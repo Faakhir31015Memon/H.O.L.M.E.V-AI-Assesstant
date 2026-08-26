@@ -152,6 +152,11 @@ export const TerminalFeed: React.FC = () => {
 
       </div>
 
+      {snapshot && (
+        <div className="text-[10px] font-sharetech text-cyber-cyan/70 px-1">
+          GATEWAY {snapshot.pc.openApps.length ? `APPS ${snapshot.pc.openApps.join(',')}` : 'ONLINE'} · VOL {snapshot.pc.volume}%
+        </div>
+      )}
     </section>
   );
 };
