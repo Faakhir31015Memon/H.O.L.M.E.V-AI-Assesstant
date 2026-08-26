@@ -1,32 +1,44 @@
-# React + TypeScript + Vite
+# H.O.L.M.E.V
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Holographic Operating Layer for Multi-device Engagement & Vision — a local-first personal AI command center.
 
-Currently, two official plugins are available:
+Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Phases: [docs/PHASES.md](docs/PHASES.md) · Shipped: [docs/IMPLEMENTATION.md](docs/IMPLEMENTATION.md)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run (Phase 1)
 
-## React Compiler
+Terminal 1 — command center:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install --prefix apps/api
+npm run dev:api
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Terminal 2 — spatial HUD:
+
+```bash
+npm install
+npm run dev
+```
+
+Optional Python language service (Node falls back to the same rules if this is down):
+
+```bash
+pip install -r apps/ai-engine/requirements.txt
+npm run dev:ai
+```
+
+Optional Postgres + Redis:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d
+```
+
+## Try
+
+In the HUD input:
+
+- `bedroom ki light 40 percent kar do`
+- `night mode activate`
+- `chrome kholo`
+- `bedroom aur corridor compare karo`
+- `computer shutdown kar do` (needs **CONFIRM** in the footer)

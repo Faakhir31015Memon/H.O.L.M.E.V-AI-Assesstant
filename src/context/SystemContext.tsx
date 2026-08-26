@@ -240,8 +240,9 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setPendingConfirm(null);
     playConfirm();
 
-    if (cmd?.command?.startsWith("cctv")) {
-      if (!cvStackActive) toggleCvStack();
+    if (cmd?.command?.startsWith("cctv") && !cvStackActive) {
+      setCvStackActive(true);
+      addLog("CV STACK: camera layout from command center.", "VISION_CV", "success");
     }
     if (cmd?.command === "ui.mode" && cmd.action === "overkill") {
       toggleOverkillMode();
