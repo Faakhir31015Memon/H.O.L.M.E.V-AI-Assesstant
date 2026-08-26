@@ -9,6 +9,8 @@ export const ControlFooter: React.FC = () => {
     setSystemState, 
     addLog, 
     executeCommand, 
+    confirmPending,
+    pendingConfirm,
     triggerPill,
     overkillMode 
   } = useSystem();
@@ -58,6 +60,18 @@ export const ControlFooter: React.FC = () => {
   return (
     <footer className="flex flex-col gap-3.5 relative z-10 select-none">
       
+      {pendingConfirm && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={confirmPending}
+            className="quick-pill border-red-500 text-red-400"
+          >
+            CONFIRM {pendingConfirm.risk} ACTION
+          </button>
+        </div>
+      )}
+
       {/* QUICK PRESET COMMAND PILLS */}
       <div className="flex justify-center flex-wrap gap-2.5">
         <button 
@@ -144,7 +158,7 @@ export const ControlFooter: React.FC = () => {
           onChange={(e) => setInputVal(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={systemState !== 'IDLE'}
-          placeholder="Type instruction for H.O.L.M.E.V. (e.g. 'diagnostics sweep', 'active overkill')..." 
+          placeholder="H.O.L.M.E.V — e.g. 'bedroom ki light 40 percent kar do'" 
           className="flex-1 bg-transparent border-none outline-none text-white font-rajdhani text-sm font-medium tracking-wide placeholder-cyber-cyan/35 h-9"
         />
 

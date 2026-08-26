@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "npm run dev --prefix apps/api",
+    "dev:ai": "python -m uvicorn main:app --app-dir apps/ai-engine --reload --port 8790",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
