@@ -5,7 +5,8 @@ import type { Role, UnderstandResult } from "../../../core/protocol.ts";
 import { cameras } from "./cctvSim.ts";
 import { confirmCommand, listAudit, runCommand } from "./commandEngine.ts";
 import { subscribe } from "./eventBus.ts";
-import { listHome } from "./homeSim.ts";
+import { applyHome, listHome } from "./homeSim.ts";
+import { listMemory, searchMemory, storeMemory } from "./memory.ts";
 import { getPc } from "./pcSim.ts";
 import { understandLocal } from "./understand.ts";
 
@@ -59,7 +60,35 @@ async function main() {
 
   app.get("/api/v1/devices", async () => ({ devices: listHome(), pc: getPc() }));
   app.get("/api/v1/cameras", async () => ({ cameras }));
+  app.get("/api/v1/cameras/grid", async () => ({ layout: "grid", cameras }));
   app.get("/api/v1/security/audit", async () => ({ logs: listAudit() }));
+
+  app.get("/api/v1/home/lights", async () => ({
+    lights: listHome().filter((d) => d.type === "light"),
+  }));
+
+  app.post("/api/v1/home/lights/:location", async (req) => {
+    const { location } = req.params as { location: string };
+    const body = (req.body as { power?: boolean; brightness?: number }) ?? {};
+    const brightness = body.brightness ?? (body.power === false ? 0 : 80);
+    return applyHome("light", location, {
+      power: body.power ?? brightness > 0,
+      brightness,
+    });
+  });
+
+  app.post("/api/v1/memory/store", async (req) => {
+    const { kind, content } = (req.body as { kind?: string; content?: string }) ?? {};
+    if (!content) return { error: "content required" };
+    return storeMemory(kind ?? "note", content);
+  });
+
+  app.post("/api/v1/memory/search", async (req) => {
+    const { q } = (req.body as { q?: string }) ?? {};
+    return { items: searchMemory(q ?? "") };
+  });
+
+  app.get("/api/v1/memory", async () => ({ items: listMemory() }));
 
   app.post("/api/v1/language/understand", async (req) => {
     const { text } = (req.body as { text?: string }) ?? {};

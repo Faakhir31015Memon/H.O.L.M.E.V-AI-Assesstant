@@ -352,7 +352,8 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       confirmPending,
       pendingConfirm,
       triggerPill,
-      lastCommand
+      lastCommand,
+      snapshot
     }}>
       {children}
     </SystemContext.Provider>
