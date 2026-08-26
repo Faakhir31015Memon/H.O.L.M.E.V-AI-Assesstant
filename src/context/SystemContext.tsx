@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { confirmOnGateway, executeOnGateway, type ExecuteResponse } from '../core/holmevClient';
 import { playChirp, playConfirm, playWarning, startReactorHum, stopReactorHum, speak } from '../utils/sound';
 
 export type SystemStateType = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'ERROR';
@@ -28,7 +29,10 @@ interface SystemContextProps {
   toggleCvStack: () => void;
   addLog: (text: string, source: string, level?: 'info' | 'warn' | 'success') => void;
   executeCommand: (cmdText: string) => void;
+  confirmPending: () => void;
+  pendingConfirm: ExecuteResponse | null;
   triggerPill: (pillKey: string) => void;
+  lastCommand: ExecuteResponse | null;
 }
 
 const SystemContext = createContext<SystemContextProps | undefined>(undefined);
