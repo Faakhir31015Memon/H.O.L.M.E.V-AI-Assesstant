@@ -80,6 +80,8 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     neuralLoad: 48.2,
     latency: 8
   });
+  const [pendingConfirm, setPendingConfirm] = useState<ExecuteResponse | null>(null);
+  const [lastCommand, setLastCommand] = useState<ExecuteResponse | null>(null);
 
   // Timestamp generator helper
   const getTimestamp = () => {
@@ -219,38 +221,77 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
-  // Command processor
+  const applyGatewayResult = (result: ExecuteResponse) => {
+    setLastCommand(result);
+    addLog(
+      `[${result.risk}] ${result.command?.command ?? "n/a"}:${result.command?.action ?? ""} → ${result.status}`,
+      "COMMAND",
+      result.status === "denied" || result.status === "error" ? "warn" : "success"
+    );
+    addLog(result.spokenReply, "AI_BACKEND", "info");
+    speak(result.spokenReply);
+
+    const cmd = result.command;
+    if (result.status === "needs_confirmation") {
+      setPendingConfirm(result);
+      playWarning();
+      return;
+    }
+    setPendingConfirm(null);
+    playConfirm();
+
+    if (cmd?.command?.startsWith("cctv")) {
+      if (!cvStackActive) toggleCvStack();
+    }
+    if (cmd?.command === "ui.mode" && cmd.action === "overkill") {
+      toggleOverkillMode();
+    }
+  };
+
   const executeCommand = (cmdText: string) => {
     if (!cmdText.trim()) return;
-    
+
     playChirp();
     addLog(cmdText, "USER", "info");
-    setSystemState('PROCESSING');
+    setSystemState("PROCESSING");
 
-    setTimeout(() => {
-      setSystemState('IDLE');
-      playConfirm();
-      const lower = cmdText.toLowerCase();
-
-      if (lower.includes('diag') || lower.includes('status')) {
-        speak("Scanning logic sectors. Coherence coefficient is zero point nine nine nine eight.");
-        simulateHolmevResponse(HOLMEV_RESPONSES.diagnostics);
-      } else if (lower.includes('security') || lower.includes('firewall') || lower.includes('shield')) {
-        speak("Tritium intrusion barrier online. External threats mitigated.");
-        simulateHolmevResponse(HOLMEV_RESPONSES.security);
-      } else if (lower.includes('purge') || lower.includes('cache')) {
-        speak("Flushing memory buffer. System index optimized.");
-        simulateHolmevResponse(HOLMEV_RESPONSES.purge);
-      } else if (lower.includes('overkill') || lower.includes('overclock')) {
-        toggleOverkillMode();
-        simulateHolmevResponse(HOLMEV_RESPONSES.overkill);
-      } else if (lower.includes('cv') || lower.includes('vision') || lower.includes('cam')) {
-        toggleCvStack();
-      } else {
-        speak("Query not recognized. Command sequence offline.");
-        simulateHolmevResponse(HOLMEV_RESPONSES.unknown);
+    void (async () => {
+      try {
+        const result = await executeOnGateway(cmdText);
+        applyGatewayResult(result);
+      } catch {
+        addLog("Command center offline — using local HUD fallback.", "SYSTEM", "warn");
+        const lower = cmdText.toLowerCase();
+        if (lower.includes("diag") || lower.includes("status")) {
+          speak("Scanning logic sectors. Coherence coefficient is zero point nine nine nine eight.");
+          simulateHolmevResponse(HOLMEV_RESPONSES.diagnostics);
+        } else if (lower.includes("overkill") || lower.includes("overclock")) {
+          toggleOverkillMode();
+        } else if (lower.includes("cv") || lower.includes("vision") || lower.includes("cam") || lower.includes("cctv")) {
+          toggleCvStack();
+        } else {
+          speak("Query not recognized. Start the command center with npm run dev:api.");
+          simulateHolmevResponse(HOLMEV_RESPONSES.unknown);
+        }
+      } finally {
+        setSystemState("IDLE");
       }
-    }, 1200);
+    })();
+  };
+
+  const confirmPending = () => {
+    if (!pendingConfirm?.confirmToken) return;
+    setSystemState("PROCESSING");
+    void (async () => {
+      try {
+        const result = await confirmOnGateway(pendingConfirm.confirmToken!);
+        applyGatewayResult(result);
+      } catch {
+        addLog("Confirmation failed — command center unreachable.", "SYSTEM", "warn");
+      } finally {
+        setSystemState("IDLE");
+      }
+    })();
   };
 
   // Trigger from preset pill shortcuts
@@ -292,7 +333,10 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       toggleCvStack,
       addLog,
       executeCommand,
-      triggerPill
+      confirmPending,
+      pendingConfirm,
+      triggerPill,
+      lastCommand
     }}>
       {children}
     </SystemContext.Provider>
