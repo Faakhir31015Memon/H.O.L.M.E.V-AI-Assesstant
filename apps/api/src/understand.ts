@@ -35,21 +35,20 @@ export function understandLocal(text: string): UnderstandResult {
     );
   }
 
-  if (/compare|side by side|saath/.test(t) && /(camera|cctv|cam)/.test(t) === false) {
-    const locs = [...t.matchAll(LOCATION_RE)].map((m) => normalizeLocation(m[1]));
-    if (locs.length >= 2) {
-      return reply(
-        {
-          command: "cctv.compare",
-          action: "side_by_side",
-          value: { cameras: locs.slice(0, 2) },
-          authorization: "none",
-          spokenReply: `Opening ${locs[0]} and ${locs[1]} side by side.`,
-        },
-        0.88,
-        "cctv.compare",
-      );
-    }
+  if (/compare|muqabla|side by side/.test(t)) {
+    const locs = [...t.matchAll(new RegExp(LOCATION_RE, "gi"))].map((m) => normalizeLocation(m[1]));
+    const cameras = locs.length >= 2 ? locs.slice(0, 2) : ["bedroom", "corridor"];
+    return reply(
+      {
+        command: "cctv.compare",
+        action: "side_by_side",
+        value: { cameras },
+        authorization: "none",
+        spokenReply: `Opening ${cameras[0]} and ${cameras[1]} side by side.`,
+      },
+      0.88,
+      "cctv.compare",
+    );
   }
 
   if (/grid|saare cameras|all cameras/.test(t)) {
@@ -226,6 +225,37 @@ export function understandLocal(text: string): UnderstandResult {
         "device.control",
       );
     }
+  }
+
+  if (/fan/.test(t)) {
+    const location = loc(t, "bedroom");
+    const off = /\boff\b|band kar/.test(t);
+    return reply(
+      {
+        command: "device.control",
+        target: { type: "fan", location },
+        action: "power",
+        value: !off,
+        authorization: "none",
+        spokenReply: `${location.replace("_", " ")} fan ${off ? "off" : "on"}.`,
+      },
+      0.88,
+      "device.control",
+    );
+  }
+
+  if (/projector/.test(t)) {
+    const off = /\boff\b|band/.test(t);
+    return reply(
+      {
+        command: "ui.mode",
+        action: off ? "monitor" : "projector",
+        authorization: "none",
+        spokenReply: off ? "Interface on monitor." : "Interface moving to projector.",
+      },
+      0.86,
+      "ui.mode",
+    );
   }
 
   if (/\bac\b|air con|temperature/.test(t)) {

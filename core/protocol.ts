@@ -24,7 +24,7 @@ export interface StructuredCommand {
   target?: CommandTarget;
   action: string;
   value?: string | number | boolean | Record<string, unknown>;
-  authorization: "none" | "required";
+  authorization: "none" | "identity" | "required" | "mfa";
   spokenReply?: string;
 }
 

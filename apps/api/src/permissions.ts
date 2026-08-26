@@ -5,7 +5,7 @@ const EXTREME_ACTIONS = new Set(["delete_recordings", "wipe", "disable_security"
 
 export function classifyRisk(cmd: StructuredCommand): RiskLevel {
   const action = cmd.action.toLowerCase();
-  if (EXTREME_ACTIONS.has(action) || cmd.command.startsWith("cctv") && action.includes("delete")) {
+  if (EXTREME_ACTIONS.has(action) || (cmd.command.startsWith("cctv") && action.includes("delete"))) {
     return "EXTREME";
   }
   if (cmd.command === "system.power" || HIGH_ACTIONS.has(action)) {
@@ -26,6 +26,8 @@ const ROLE_ALLOW: Record<string, Set<string>> = {
     "device.control",
     "home.scene",
     "cctv.view",
+    "cctv.compare",
+    "cctv.grid",
     "system.info",
     "conversation.reply",
     "ui.mode",
