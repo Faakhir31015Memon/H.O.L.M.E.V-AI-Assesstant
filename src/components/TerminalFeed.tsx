@@ -3,7 +3,7 @@ import { useSystem } from '../context/SystemContext';
 import { playDataTick } from '../utils/sound';
 
 export const TerminalFeed: React.FC = () => {
-  const { logs, metrics, overkillMode } = useSystem();
+  const { logs, metrics, overkillMode, lastCommand, snapshot } = useSystem();
   const terminalEndRef = useRef<HTMLDivElement>(null);
   
   // Track metrics history for the telemetry line chart
@@ -58,7 +58,9 @@ export const TerminalFeed: React.FC = () => {
       {/* TITLE */}
       <h2 className="panel-title flex justify-between items-center">
         <span>EXECUTION LOGS & VECTORS</span>
-        <span className="sub">LOG_STREAM_01</span>
+        <span className="sub">
+          {lastCommand ? `${lastCommand.status.toUpperCase()} · ${lastCommand.risk}` : 'LOG_STREAM_01'}
+        </span>
       </h2>
 
       {/* AUTO SCROLLING TERMINAL PANEL */}

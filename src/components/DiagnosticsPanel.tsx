@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useSystem } from '../context/SystemContext';
 
 export const DiagnosticsPanel: React.FC = () => {
-  const { metrics, overkillMode } = useSystem();
+  const { metrics, overkillMode, snapshot } = useSystem();
   
   // Local telemetry states
   const [fps, setFps] = useState(60.0);
@@ -53,6 +53,21 @@ export const DiagnosticsPanel: React.FC = () => {
         <span>SYSTEM DIAGNOSTICS</span>
         <span className="sub">{overkillMode ? 'SYS_OVERCLOCK_v9' : 'SYS_DIAG_v3.42'}</span>
       </h2>
+
+      {snapshot && (
+        <div className="grid grid-cols-2 gap-1.5 text-[10px] font-sharetech">
+          {snapshot.home.slice(0, 4).map((d) => (
+            <div key={d.id} className={`border rounded px-2 py-1 ${overkillMode ? 'border-red-500/20' : 'border-cyber-cyan/20'}`}>
+              <div className="opacity-60 uppercase">{d.location} {d.type}</div>
+              <div className={activeColor}>
+                {d.power ? 'ON' : 'OFF'}
+                {typeof d.brightness === 'number' ? ` ${d.brightness}%` : ''}
+                {typeof d.temperature === 'number' ? ` ${d.temperature}°C` : ''}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* METRIC PROGRESS BARS */}
       <div className="flex flex-col gap-4">
