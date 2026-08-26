@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { confirmOnGateway, executeOnGateway, type ExecuteResponse } from '../core/holmevClient';
+import { confirmOnGateway, executeOnGateway, fetchSystem, type ExecuteResponse, type SystemSnapshot } from '../core/holmevClient';
 import { playChirp, playConfirm, playWarning, startReactorHum, stopReactorHum, speak } from '../utils/sound';
 
 export type SystemStateType = 'IDLE' | 'LISTENING' | 'PROCESSING' | 'ERROR';
@@ -33,6 +33,7 @@ interface SystemContextProps {
   pendingConfirm: ExecuteResponse | null;
   triggerPill: (pillKey: string) => void;
   lastCommand: ExecuteResponse | null;
+  snapshot: SystemSnapshot | null;
 }
 
 const SystemContext = createContext<SystemContextProps | undefined>(undefined);
@@ -82,8 +83,21 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
   const [pendingConfirm, setPendingConfirm] = useState<ExecuteResponse | null>(null);
   const [lastCommand, setLastCommand] = useState<ExecuteResponse | null>(null);
+  const [snapshot, setSnapshot] = useState<SystemSnapshot | null>(null);
 
-  // Timestamp generator helper
+  const refreshSnapshot = () => {
+    void fetchSystem()
+      .then(setSnapshot)
+      .catch(() => {
+        /* command center offline */
+      });
+  };
+
+  useEffect(() => {
+    refreshSnapshot();
+    const id = window.setInterval(refreshSnapshot, 4000);
+    return () => window.clearInterval(id);
+  }, []);
   const getTimestamp = () => {
     const now = new Date();
     return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -239,6 +253,7 @@ export const SystemProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     setPendingConfirm(null);
     playConfirm();
+    refreshSnapshot();
 
     if (cmd?.command?.startsWith("cctv") && !cvStackActive) {
       setCvStackActive(true);
